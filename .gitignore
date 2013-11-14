@@ -216,3 +216,7 @@ pip-log.txt
 
 quickcheck/target/scala-2.10/classes
 quickcheck/target/scala-2.10/test-classes/
+quickcheck/project/project/target/config-classes/
+quickcheck/project/project/target/
+quickcheck/project/target
+quickcheck/target
