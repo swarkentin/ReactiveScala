@@ -103,7 +103,7 @@ class CircuitSuite extends CircuitSimulator with FunSuite {
   test("demux2") {
     val in1, c1, c2, out1, out2, out3, out4 = new Wire
     val outWires = List(out1, out2, out3, out4)
-    demux(in1, List(c1, c2), outWires)
+    demux(in1, List(c2, c1), outWires)
 
     in1.setSignal(false)
     c1.setSignal(false)
@@ -125,13 +125,13 @@ class CircuitSuite extends CircuitSimulator with FunSuite {
     run
     assertWires(outWires, List(true,false,false,false))
     
-    c1.setSignal(false)
-    c2.setSignal(true)
+    c1.setSignal(true)
+    c2.setSignal(false)
     run
     assertWires(outWires, List(false,true,false,false))
     
-    c1.setSignal(true)
-    c2.setSignal(false)
+    c1.setSignal(false)
+    c2.setSignal(true)
     run
     assertWires(outWires, List(false,false,true,false))
     

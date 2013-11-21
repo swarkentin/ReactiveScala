@@ -222,3 +222,5 @@ quickcheck/project/target
 quickcheck/target
 simulations/target/scala-2.10/classes
 simulations/target
+simulations/project/project/target
+simulations/project/target
