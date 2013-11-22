@@ -11,7 +11,7 @@ class EpidemySimulator extends Simulator {
     val roomRows: Int = 8
     val roomColumns: Int = 8
 
-    val daysUntilSick: Int = 2
+    val daysUntilSick: Int = 6
     val daysUntilDead: Int = 14
     val daysUntilImmune: Int = 16
     val daysUntilHealth: Int = 18
@@ -21,14 +21,24 @@ class EpidemySimulator extends Simulator {
     val startingInfectionRate: Double = 0.01 //1%
     val chanceToInfect: Double = 0.40 //40%  
     val chancetoDie: Double = 0.25 // 25%
+    var toInfect: Int = (startingInfectionRate * population.toDouble).toInt
   }
 
   import SimConfig._
 
+  def addInfectedPerson(): Boolean = {
+    if (SimConfig.toInfect > 0) {
+      SimConfig.toInfect = SimConfig.toInfect - 1
+      true
+    } else {
+      false
+    }
+  }
+
   val persons: List[Person] = (0 to SimConfig.population).toList.map(n => new Person(n))
 
   class Person(val id: Int) {
-    var infected = random <= SimConfig.startingInfectionRate
+    var infected = addInfectedPerson
     var sick = false
     var immune = false
     var dead = false
@@ -45,10 +55,14 @@ class EpidemySimulator extends Simulator {
     }
 
     def move() {
+
       afterDelay(randomBelow(timeBetweenMoves) + 1) {
-        pickNextRoom(row, col)
-        catchInfection
-        move
+        if (!dead) {
+          pickNextRoom(row, col)
+          catchInfection
+
+          move
+        }
       }
       def pickNextRoom(r: Int, c: Int) {
         val left = if (r == 0) Tuple2(roomRows - 1, c) else Tuple2((r - 1) % roomRows, c)
@@ -75,8 +89,8 @@ class EpidemySimulator extends Simulator {
     }
 
     def becomeSick() {
-      if (infected) {
-        afterDelay(SimConfig.daysUntilSick) {
+      afterDelay(SimConfig.daysUntilSick) {
+        if (!sick) {
           sick = true
           becomeDead()
         }
@@ -96,7 +110,6 @@ class EpidemySimulator extends Simulator {
 
     def becomeImmune() {
       afterDelay(SimConfig.daysUntilImmune - SimConfig.daysUntilDead) {
-        infected = true;
         sick = false;
         immune = true;
         becomeHealthy
@@ -108,22 +121,25 @@ class EpidemySimulator extends Simulator {
       afterDelay(SimConfig.daysUntilHealth - SimConfig.daysUntilImmune) {
         sick = false;
         infected = false;
-        immune = false;        
+        immune = false;
       }
     }
 
     def catchInfection() {
-      val infectedInRoom = persons.exists(p => p.row == row && p.col == col && p.infected)
-      if (infectedInRoom) {
-        val gotInfected = random <= chanceToInfect
-        if (gotInfected) {
-          infected = true
-          becomeSick()
+      if (!infected && !dead) {
+        val infectedInRoom = persons.exists(p => p.row == row && p.col == col && p.infected)
+        if (infectedInRoom) {
+          val gotInfected = random <= chanceToInfect
+          if (gotInfected) {
+            infected = true
+            becomeSick()
+          }
         }
       }
     }
 
     addAction(move)
-    addAction(becomeSick)
+    if (infected)
+      addAction(becomeSick)
   }
 }
