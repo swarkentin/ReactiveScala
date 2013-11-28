@@ -224,3 +224,6 @@ simulations/target/scala-2.10/classes
 simulations/target
 simulations/project/project/target
 simulations/project/target
+nodescala/project/project/target
+nodescala/project/target
+nodescala/target/
